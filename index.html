@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>WhatsApp Reminder</title>
 <style>
-  /* ═══════════════════════════════════════════════
-     RESET & BASE
-  ═══════════════════════════════════════════════ */
   *, *::before, *::after {
     margin: 0; padding: 0;
     box-sizing: border-box;
@@ -34,22 +31,18 @@
     --text-muted: rgba(255,255,255,0.25);
     --radius: 20px;
     --radius-sm: 12px;
-    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
   }
 
   html, body {
     width: 100%; height: 100%;
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     overflow: hidden;
     position: fixed;
     top: 0; left: 0;
   }
 
-  /* ═══════════════════════════════════════════════
-     APP CONTAINER
-  ═══════════════════════════════════════════════ */
   #app {
     width: 100vw;
     height: 100vh;
@@ -59,9 +52,6 @@
     overflow: hidden;
   }
 
-  /* ═══════════════════════════════════════════════
-     SCREENS
-  ═══════════════════════════════════════════════ */
   .screen {
     position: absolute;
     inset: 0;
@@ -81,759 +71,349 @@
     transform: translateY(0);
   }
 
-  /* ═══════════════════════════════════════════════
-     MAIN SCREEN
-  ═══════════════════════════════════════════════ */
-  #screen-main {
-    background: var(--bg);
-    padding: 0 0 100px 0;
-  }
+  /* ── HEADER ── */
+  #screen-main { background: var(--bg); padding: 0 0 100px 0; }
 
-  /* Header */
   .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 56px 24px 20px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+    position: sticky; top: 0; z-index: 10;
     backdrop-filter: blur(10px);
   }
   .header-title {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-size: 18px; font-weight: 700; letter-spacing: 0.5px;
     background: linear-gradient(135deg, var(--green), var(--cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-  .header-subtitle {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
+  .header-subtitle { font-size: 11px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
   .btn-settings {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--text-dim);
-    font-size: 20px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text-dim); font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
   }
-  .btn-settings:active { transform: scale(0.9); background: var(--surface3); }
+  .btn-settings:active { transform: scale(0.9); }
 
-  /* Status Badge */
+  /* ── BANNER ARRIÈRE-PLAN ── */
+  .bg-banner {
+    margin: 0 24px 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; cursor: pointer; transition: all 0.2s;
+    border: 1px solid;
+  }
+  .bg-banner.warn {
+    background: rgba(255,107,0,0.08);
+    border-color: rgba(255,107,0,0.25);
+    color: var(--orange);
+  }
+  .bg-banner.ok {
+    background: rgba(37,211,102,0.08);
+    border-color: rgba(37,211,102,0.25);
+    color: var(--green);
+  }
+  .bg-banner.hidden { display: none; }
+  .bg-banner:active { opacity: 0.7; }
+  .bg-banner-icon { font-size: 20px; flex-shrink: 0; }
+  .bg-banner-text { flex: 1; line-height: 1.4; }
+  .bg-banner-text strong { display: block; margin-bottom: 2px; }
+  .bg-banner-action { font-weight: 700; text-decoration: underline; white-space: nowrap; font-size: 12px; }
+
+  /* ── NOTIF BANNER ── */
+  .notif-banner {
+    margin: 0 24px 16px;
+    padding: 12px 16px;
+    background: rgba(0,245,255,0.05);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--cyan); cursor: pointer;
+  }
+  .notif-banner.hidden { display: none; }
+  .notif-banner:active { background: rgba(0,245,255,0.1); }
+
+  /* ── STATUS ── */
   .status-badge {
     margin: 0 24px 24px;
     padding: 10px 20px;
     border-radius: 50px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: all 0.4s ease;
-    align-self: flex-start;
-    border: 1px solid transparent;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+    transition: all 0.4s; align-self: flex-start; border: 1px solid transparent;
   }
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    transition: all 0.4s;
-  }
-  .status-badge.waiting {
-    background: rgba(255,255,255,0.04);
-    border-color: var(--border);
-    color: var(--text-dim);
-  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; transition: all 0.4s; }
+  .status-badge.waiting { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-dim); }
   .status-badge.waiting .status-dot { background: var(--text-muted); }
-  .status-badge.active {
-    background: var(--green-dim);
-    border-color: rgba(37,211,102,0.3);
-    color: var(--green);
-  }
-  .status-badge.active .status-dot {
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green-glow);
-    animation: pulse-dot 1s infinite;
-  }
-  .status-badge.alert {
-    background: rgba(255,59,59,0.15);
-    border-color: rgba(255,59,59,0.3);
-    color: var(--red);
-  }
-  .status-badge.alert .status-dot {
-    background: var(--red);
-    animation: pulse-dot 0.5s infinite;
-  }
-  .status-badge.paused {
-    background: rgba(255,107,0,0.1);
-    border-color: rgba(255,107,0,0.2);
-    color: var(--orange);
-  }
+  .status-badge.active { background: var(--green-dim); border-color: rgba(37,211,102,0.3); color: var(--green); }
+  .status-badge.active .status-dot { background: var(--green); box-shadow: 0 0 8px var(--green-glow); animation: pulse-dot 1s infinite; }
+  .status-badge.alert { background: rgba(255,59,59,0.15); border-color: rgba(255,59,59,0.3); color: var(--red); }
+  .status-badge.alert .status-dot { background: var(--red); animation: pulse-dot 0.5s infinite; }
+  .status-badge.paused { background: rgba(255,107,0,0.1); border-color: rgba(255,107,0,0.2); color: var(--orange); }
   .status-badge.paused .status-dot { background: var(--orange); }
 
-  @keyframes pulse-dot {
-    0%,100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.4); opacity: 0.7; }
-  }
+  @keyframes pulse-dot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
 
-  /* Timer Circle */
+  /* ── TIMER RING ── */
   .timer-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 24px 32px;
-    position: relative;
+    display: flex; flex-direction: column; align-items: center; padding: 10px 24px 32px; position: relative;
   }
-
-  .timer-ring-wrapper {
-    position: relative;
-    width: 240px; height: 240px;
-  }
-
-  .timer-ring-svg {
-    width: 240px; height: 240px;
-    transform: rotate(-90deg);
-    position: absolute; inset: 0;
-  }
-
-  .timer-ring-bg {
-    fill: none;
-    stroke: var(--surface3);
-    stroke-width: 6;
-  }
-
+  .timer-ring-wrapper { position: relative; width: 240px; height: 240px; }
+  .timer-ring-svg { width: 240px; height: 240px; transform: rotate(-90deg); position: absolute; inset: 0; }
+  .timer-ring-bg { fill: none; stroke: var(--surface3); stroke-width: 6; }
   .timer-ring-progress {
-    fill: none;
-    stroke: var(--green);
-    stroke-width: 6;
-    stroke-linecap: round;
-    stroke-dasharray: 691;
-    stroke-dashoffset: 0;
+    fill: none; stroke: var(--green); stroke-width: 6; stroke-linecap: round;
+    stroke-dasharray: 691; stroke-dashoffset: 0;
     transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
     filter: drop-shadow(0 0 8px var(--green-glow));
   }
-
   .timer-inner {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px;
   }
-
   .timer-display {
-    font-size: 56px;
-    font-weight: 800;
-    letter-spacing: -2px;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    transition: color 0.5s;
+    font-size: 56px; font-weight: 800; letter-spacing: -2px;
+    line-height: 1; font-variant-numeric: tabular-nums; transition: color 0.5s;
   }
   .timer-display.green { color: var(--green); text-shadow: 0 0 30px var(--green-glow); }
   .timer-display.orange { color: var(--orange); text-shadow: 0 0 30px var(--orange-glow); }
   .timer-display.red { color: var(--red); text-shadow: 0 0 30px var(--red-glow); animation: flicker 0.5s infinite; }
-  .timer-display.white { color: var(--text); text-shadow: none; }
+  .timer-display.white { color: var(--text); }
+  .timer-label { font-size: 11px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
 
-  .timer-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  .glow-ring { position: absolute; inset: -20px; border-radius: 50%; opacity: 0; transition: opacity 0.5s; pointer-events: none; }
+  .glow-ring.active { opacity: 1; background: radial-gradient(circle, var(--green-dim) 0%, transparent 70%); animation: breathe 3s infinite; }
+  .glow-ring.alert { opacity: 1; background: radial-gradient(circle, rgba(255,59,59,0.2) 0%, transparent 70%); animation: breathe 0.8s infinite; }
 
-  /* Glow ring overlay */
-  .glow-ring {
-    position: absolute;
-    inset: -20px;
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.5s;
-    pointer-events: none;
-  }
-  .glow-ring.active {
-    opacity: 1;
-    background: radial-gradient(circle, var(--green-dim) 0%, transparent 70%);
-    animation: breathe 3s infinite;
-  }
-  .glow-ring.alert {
-    opacity: 1;
-    background: radial-gradient(circle, rgba(255,59,59,0.2) 0%, transparent 70%);
-    animation: breathe 0.8s infinite;
-  }
+  @keyframes breathe { 0%,100% { transform: scale(0.95); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
+  @keyframes flicker { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-  @keyframes breathe {
-    0%,100% { transform: scale(0.95); opacity: 0.6; }
-    50% { transform: scale(1.05); opacity: 1; }
-  }
-
-  @keyframes flicker {
-    0%,100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-
-  /* Next reminder */
   .next-reminder {
-    margin-top: 16px;
-    padding: 12px 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    color: var(--text-dim);
-    transition: all 0.4s;
+    margin-top: 16px; padding: 12px 20px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); display: flex; align-items: center;
+    gap: 10px; font-size: 13px; color: var(--text-dim); transition: all 0.4s;
   }
   .next-reminder.hidden { opacity: 0; pointer-events: none; }
-  .next-reminder-icon { font-size: 16px; }
   .next-reminder-time { color: var(--text); font-weight: 600; }
 
-  /* Main Button */
-  .main-btn-section {
-    padding: 0 24px 24px;
-  }
-
+  /* ── BUTTONS ── */
+  .main-btn-section { padding: 0 24px 24px; }
   .btn-main {
-    width: 100%;
-    padding: 22px;
-    border-radius: 20px;
-    border: none;
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    text-transform: uppercase;
+    width: 100%; padding: 22px; border-radius: 20px; border: none;
+    font-size: 18px; font-weight: 800; letter-spacing: 1px; cursor: pointer;
+    position: relative; overflow: hidden; transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center; gap: 12px; text-transform: uppercase;
   }
-
-  .btn-main::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .btn-main:active::before { opacity: 1; }
   .btn-main:active { transform: scale(0.97); }
-
-  .btn-main.green {
-    background: linear-gradient(135deg, #25D366, #128C7E);
-    color: white;
-    box-shadow: 0 8px 32px var(--green-glow), 0 2px 8px rgba(0,0,0,0.5);
-  }
-  .btn-main.green.glow-pulse {
-    animation: glow-pulse-green 2s infinite;
-  }
-  @keyframes glow-pulse-green {
-    0%,100% { box-shadow: 0 8px 32px var(--green-glow), 0 2px 8px rgba(0,0,0,0.5); }
-    50% { box-shadow: 0 8px 48px rgba(37,211,102,0.7), 0 2px 8px rgba(0,0,0,0.5); }
-  }
-
-  .btn-main.red {
-    background: linear-gradient(135deg, #ff3b3b, #cc0000);
-    color: white;
-    box-shadow: 0 8px 32px var(--red-glow), 0 2px 8px rgba(0,0,0,0.5);
-    animation: blink-btn 0.8s infinite;
-  }
-  @keyframes blink-btn {
-    0%,100% { box-shadow: 0 8px 32px var(--red-glow), 0 2px 8px rgba(0,0,0,0.5); transform: scale(1); }
-    50% { box-shadow: 0 8px 60px rgba(255,59,59,0.8), 0 2px 8px rgba(0,0,0,0.5); transform: scale(1.02); }
-  }
-
+  .btn-main.green { background: linear-gradient(135deg, #25D366, #128C7E); color: white; box-shadow: 0 8px 32px var(--green-glow); }
+  .btn-main.green.glow-pulse { animation: glow-pulse-green 2s infinite; }
+  @keyframes glow-pulse-green { 0%,100% { box-shadow: 0 8px 32px var(--green-glow); } 50% { box-shadow: 0 8px 48px rgba(37,211,102,0.7); } }
+  .btn-main.red { background: linear-gradient(135deg, #ff3b3b, #cc0000); color: white; animation: blink-btn 0.8s infinite; }
+  @keyframes blink-btn { 0%,100% { box-shadow: 0 8px 32px var(--red-glow); transform: scale(1); } 50% { box-shadow: 0 8px 60px rgba(255,59,59,0.8); transform: scale(1.02); } }
   .btn-icon { font-size: 22px; }
 
-  /* Control Buttons */
-  .controls {
-    display: flex;
-    gap: 12px;
-    padding: 0 24px 24px;
-    transition: all 0.4s;
-  }
+  .controls { display: flex; gap: 12px; padding: 0 24px 24px; transition: all 0.4s; }
   .controls.hidden { opacity: 0; pointer-events: none; transform: translateY(10px); }
-
   .btn-ctrl {
-    flex: 1;
-    padding: 16px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--text-dim);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    flex: 1; padding: 16px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text-dim); font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn-ctrl:active { transform: scale(0.95); background: var(--surface3); }
   .btn-ctrl.pause { border-color: rgba(255,107,0,0.3); color: var(--orange); }
-  .btn-ctrl.pause:active { background: rgba(255,107,0,0.1); }
   .btn-ctrl.reset { border-color: rgba(255,59,59,0.2); color: var(--text-muted); }
-  .btn-ctrl.reset:active { background: rgba(255,59,59,0.05); }
 
-  /* Stats Row */
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding: 0 24px 24px;
-  }
-
+  /* ── STATS ── */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 24px 24px; }
   .stat-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px; display: flex; flex-direction: column; gap: 4px;
   }
   .stat-icon { font-size: 20px; margin-bottom: 4px; }
-  .stat-value {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--text);
-  }
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+  .stat-value { font-size: 24px; font-weight: 800; }
+  .stat-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
 
-  /* History */
-  .history-section {
-    padding: 0 24px;
-  }
-  .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+  /* ── HISTORY ── */
+  .history-section { padding: 0 24px; }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
   .history-item {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 13px;
-    animation: slide-in 0.3s ease;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; animation: slide-in 0.3s ease;
   }
-  @keyframes slide-in {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
+  @keyframes slide-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
   .history-time { color: var(--text-dim); }
-  .history-badge {
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 50px;
-    background: var(--green-dim);
-    color: var(--green);
-    font-weight: 600;
-  }
-  .no-history {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 13px;
-    padding: 20px;
-  }
+  .history-badge { font-size: 11px; padding: 3px 10px; border-radius: 50px; background: var(--green-dim); color: var(--green); font-weight: 600; }
+  .no-history { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px; }
 
-  /* ═══════════════════════════════════════════════
-     BOTTOM NAV
-  ═══════════════════════════════════════════════ */
+  /* ── BOTTOM NAV ── */
   .bottom-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 80px;
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(20px);
+    position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
+    background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
     border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding: 0 20px;
-    padding-bottom: env(safe-area-inset-bottom);
-    z-index: 100;
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 20px; padding-bottom: env(safe-area-inset-bottom); z-index: 100;
   }
-
   .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s;
-    border: none;
-    background: none;
-    color: var(--text-muted);
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px; cursor: pointer; border-radius: var(--radius-sm);
+    transition: all 0.2s; border: none; background: none; color: var(--text-muted);
   }
   .nav-item.active { color: var(--green); }
   .nav-item:active { background: var(--surface2); }
   .nav-icon { font-size: 22px; }
   .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; }
 
-  /* ═══════════════════════════════════════════════
-     SETTINGS SCREEN
-  ═══════════════════════════════════════════════ */
-  #screen-settings {
-    background: var(--bg);
-    padding: 0 0 100px 0;
-  }
-
+  /* ── SETTINGS ── */
+  #screen-settings { background: var(--bg); padding: 0 0 100px 0; }
   .settings-header {
-    padding: 56px 24px 24px;
-    position: sticky;
-    top: 0;
-    background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(10px);
-    z-index: 10;
-    border-bottom: 1px solid var(--border);
+    padding: 56px 24px 24px; position: sticky; top: 0;
+    background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+    z-index: 10; border-bottom: 1px solid var(--border);
   }
-  .settings-title {
-    font-size: 24px;
-    font-weight: 800;
-  }
-  .settings-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
-
+  .settings-title { font-size: 24px; font-weight: 800; }
+  .settings-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   .settings-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-
-  .settings-group {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .settings-group-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 16px 20px 8px;
-  }
-
-  .settings-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-    gap: 16px;
-  }
+  .settings-group { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .settings-group-title { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; padding: 16px 20px 8px; }
+  .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-top: 1px solid var(--border); gap: 16px; }
   .settings-item:first-of-type { border-top: none; }
-
   .settings-item-left { display: flex; flex-direction: column; gap: 3px; flex: 1; }
   .settings-item-name { font-size: 15px; font-weight: 600; }
   .settings-item-desc { font-size: 12px; color: var(--text-muted); }
 
-  /* Toggle Switch */
   .toggle {
-    width: 52px; height: 30px;
-    border-radius: 50px;
-    background: var(--surface3);
-    border: 1px solid var(--border);
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s;
-    flex-shrink: 0;
+    width: 52px; height: 30px; border-radius: 50px; background: var(--surface3);
+    border: 1px solid var(--border); position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0;
   }
   .toggle.on { background: var(--green); border-color: var(--green); }
   .toggle::after {
-    content: '';
-    position: absolute;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: white;
-    top: 3px; left: 3px;
-    transition: transform 0.3s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%;
+    background: white; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
   .toggle.on::after { transform: translateX(22px); }
 
-  /* Range Input */
-  .duration-control {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-  }
+  .duration-control { display: flex; align-items: center; gap: 16px; width: 100%; }
   .duration-input {
-    width: 80px;
-    padding: 10px 14px;
-    background: var(--surface3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: 18px;
-    font-weight: 700;
-    text-align: center;
-    -webkit-appearance: none;
+    width: 80px; padding: 10px 14px; background: var(--surface3);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    color: var(--text); font-size: 18px; font-weight: 700; text-align: center; -webkit-appearance: none;
   }
   .duration-input:focus { outline: none; border-color: var(--green); }
-
   .range-wrap { flex: 1; }
-  input[type=range] {
-    width: 100%;
-    -webkit-appearance: none;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--surface3);
-    outline: none;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 10px var(--green-glow);
-    cursor: pointer;
-  }
+  input[type=range] { width: 100%; -webkit-appearance: none; height: 4px; border-radius: 2px; background: var(--surface3); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green-glow); cursor: pointer; }
 
-  /* Test Sound Button */
   .btn-test {
-    padding: 12px 20px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface3);
-    color: var(--text-dim);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    justify-content: center;
-    margin: 0 20px 16px;
-    width: calc(100% - 40px);
+    padding: 12px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: var(--surface3); color: var(--text-dim); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+    width: calc(100% - 40px); justify-content: center; margin: 4px 20px;
   }
   .btn-test:active { transform: scale(0.97); background: var(--surface2); }
-
-  /* Reset Data Button */
   .btn-danger {
-    margin: 0 24px;
-    padding: 16px;
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(255,59,59,0.2);
-    background: rgba(255,59,59,0.05);
-    color: var(--red);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: calc(100% - 48px);
+    margin: 0 24px; padding: 16px; border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,59,59,0.2); background: rgba(255,59,59,0.05);
+    color: var(--red); font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 48px);
   }
   .btn-danger:active { background: rgba(255,59,59,0.15); }
 
-  /* ═══════════════════════════════════════════════
-     ALERT OVERLAY
-  ═══════════════════════════════════════════════ */
+  /* ── ALERT OVERLAY ── */
   #alert-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.95);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s;
-    backdrop-filter: blur(10px);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.97);
+    z-index: 1000; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 32px;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s; backdrop-filter: blur(10px);
   }
-  #alert-overlay.show {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .alert-icon {
-    font-size: 80px;
-    animation: bounce 0.6s infinite alternate;
-  }
-  @keyframes bounce {
-    from { transform: scale(0.9) translateY(0); }
-    to { transform: scale(1.1) translateY(-10px); }
-  }
-
+  #alert-overlay.show { opacity: 1; pointer-events: all; }
+  .alert-icon { font-size: 80px; animation: bounce 0.6s infinite alternate; }
+  @keyframes bounce { from { transform: scale(0.9) translateY(0); } to { transform: scale(1.1) translateY(-10px); } }
   .alert-title {
-    font-size: 36px;
-    font-weight: 900;
-    text-align: center;
-    color: var(--green);
-    text-shadow: 0 0 40px var(--green-glow);
-    letter-spacing: -1px;
-    animation: glow-text 1s infinite alternate;
+    font-size: 36px; font-weight: 900; text-align: center; color: var(--green);
+    text-shadow: 0 0 40px var(--green-glow); letter-spacing: -1px; animation: glow-text 1s infinite alternate;
   }
-  @keyframes glow-text {
-    from { text-shadow: 0 0 20px var(--green-glow); }
-    to { text-shadow: 0 0 60px var(--green-glow), 0 0 100px var(--green-glow); }
-  }
-
-  .alert-subtitle {
-    font-size: 16px;
-    color: var(--text-dim);
-    text-align: center;
-  }
-
+  @keyframes glow-text { from { text-shadow: 0 0 20px var(--green-glow); } to { text-shadow: 0 0 60px var(--green-glow), 0 0 100px var(--green-glow); } }
+  .alert-subtitle { font-size: 16px; color: var(--text-dim); text-align: center; }
   .alert-bg-pulse {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background: radial-gradient(circle at 50% 50%, rgba(37,211,102,0.08) 0%, transparent 60%);
-    animation: pulse-bg 1s infinite;
-    pointer-events: none;
+    animation: pulse-bg 1s infinite; pointer-events: none;
   }
-  @keyframes pulse-bg {
-    0%,100% { opacity: 0.5; transform: scale(0.9); }
-    50% { opacity: 1; transform: scale(1.1); }
-  }
-
+  @keyframes pulse-bg { 0%,100% { opacity: 0.5; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
   .btn-alert-dismiss {
-    padding: 20px 48px;
-    border-radius: 20px;
-    border: none;
+    padding: 20px 48px; border-radius: 20px; border: none;
     background: linear-gradient(135deg, var(--green), #128C7E);
-    color: white;
-    font-size: 18px;
-    font-weight: 800;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    box-shadow: 0 8px 32px var(--green-glow);
-    transition: all 0.2s;
-    text-transform: uppercase;
+    color: white; font-size: 18px; font-weight: 800; cursor: pointer;
+    letter-spacing: 0.5px; box-shadow: 0 8px 32px var(--green-glow); text-transform: uppercase;
   }
   .btn-alert-dismiss:active { transform: scale(0.97); }
 
-  /* ═══════════════════════════════════════════════
-     TOAST
-  ═══════════════════════════════════════════════ */
+  /* ── TOAST ── */
   .toast {
-    position: fixed;
-    top: 60px;
-    left: 50%;
+    position: fixed; top: 60px; left: 50%;
     transform: translateX(-50%) translateY(-20px);
-    background: var(--surface3);
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    padding: 12px 24px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    z-index: 2000;
-    opacity: 0;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    backdrop-filter: blur(10px);
+    background: var(--surface3); border: 1px solid var(--border);
+    border-radius: 50px; padding: 12px 24px; font-size: 13px; font-weight: 600;
+    color: var(--text); z-index: 2000; opacity: 0; transition: all 0.3s ease;
+    white-space: nowrap; backdrop-filter: blur(10px);
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ═══════════════════════════════════════════════
-     SCROLLBAR HIDDEN
-  ═══════════════════════════════════════════════ */
   ::-webkit-scrollbar { display: none; }
-
-  /* ═══════════════════════════════════════════════
-     NOTIFICATION PERMISSION
-  ═══════════════════════════════════════════════ */
-  .notif-banner {
-    margin: 0 24px 20px;
-    padding: 14px 16px;
-    background: rgba(0,245,255,0.05);
-    border: 1px solid rgba(0,245,255,0.2);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    color: var(--cyan);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .notif-banner.hidden { display: none; }
-  .notif-banner:active { background: rgba(0,245,255,0.1); }
-  .notif-banner-icon { font-size: 20px; flex-shrink: 0; }
-  .notif-banner-text { flex: 1; }
-  .notif-banner-btn { font-weight: 700; text-decoration: underline; white-space: nowrap; }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ═══════ MAIN SCREEN ═══════ -->
+  <!-- ═══ MAIN SCREEN ═══ -->
   <div class="screen active" id="screen-main">
     <div class="header">
       <div>
         <div class="header-title">WhatsApp Reminder</div>
-        <div class="header-subtitle">Auto Check Timer</div>
+        <div class="header-subtitle">Background Timer</div>
       </div>
-      <button class="btn-settings" onclick="navigate('settings')" aria-label="Settings">⚙️</button>
+      <button class="btn-settings" onclick="navigate('settings')">⚙️</button>
+    </div>
+
+    <!-- Bannière arrière-plan -->
+    <div class="bg-banner warn hidden" id="bg-banner-warn" onclick="showBgHelp()">
+      <span class="bg-banner-icon">⚠️</span>
+      <div class="bg-banner-text">
+        <strong>Timer actif en arrière-plan</strong>
+        Le timer continue même app fermée via les alarmes système.
+      </div>
+      <span class="bg-banner-action">Info</span>
+    </div>
+    <div class="bg-banner ok hidden" id="bg-banner-ok">
+      <span class="bg-banner-icon">✅</span>
+      <div class="bg-banner-text">
+        <strong>Arrière-plan activé</strong>
+        Rappel programmé même app fermée.
+      </div>
     </div>
 
     <!-- Notification Banner -->
-    <div class="notif-banner" id="notif-banner" onclick="requestNotifPermission()">
-      <span class="notif-banner-icon">🔔</span>
-      <span class="notif-banner-text">Activer les notifications pour les rappels</span>
-      <span class="notif-banner-btn">Activer</span>
+    <div class="notif-banner hidden" id="notif-banner" onclick="requestNotifPermission()">
+      <span style="font-size:20px;">🔔</span>
+      <span style="flex:1;">Activer les notifications pour les rappels</span>
+      <span style="font-weight:700;text-decoration:underline;">Activer</span>
     </div>
 
-    <!-- Status Badge -->
+    <!-- Status -->
     <div class="status-badge waiting" id="status-badge">
       <div class="status-dot"></div>
       <span id="status-text">En attente</span>
     </div>
 
-    <!-- Timer Section -->
+    <!-- Timer Ring -->
     <div class="timer-section">
       <div class="timer-ring-wrapper">
         <div class="glow-ring" id="glow-ring"></div>
@@ -846,11 +426,9 @@
           <div class="timer-label" id="timer-label">PRÊT</div>
         </div>
       </div>
-
-      <!-- Next Reminder Time -->
       <div class="next-reminder hidden" id="next-reminder">
-        <span class="next-reminder-icon">⏰</span>
-        <span>Prochain rappel :</span>
+        <span>⏰</span>
+        <span>Rappel à :</span>
         <span class="next-reminder-time" id="next-reminder-time">--:--</span>
       </div>
     </div>
@@ -863,15 +441,14 @@
       </button>
     </div>
 
-    <!-- Control Buttons -->
+    <!-- Controls -->
     <div class="controls hidden" id="controls">
       <button class="btn-ctrl pause" id="btn-pause" onclick="togglePause()">
         <span id="pause-icon">⏸</span>
         <span id="pause-text">Pause</span>
       </button>
       <button class="btn-ctrl reset" onclick="resetTimer()">
-        <span>↺</span>
-        <span>Reset</span>
+        <span>↺</span><span>Reset</span>
       </button>
     </div>
 
@@ -898,43 +475,38 @@
     </div>
   </div>
 
-  <!-- ═══════ SETTINGS SCREEN ═══════ -->
+  <!-- ═══ SETTINGS SCREEN ═══ -->
   <div class="screen" id="screen-settings">
     <div class="settings-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <button onclick="navigate('main')" style="background:none;border:none;color:var(--green);font-size:24px;cursor:pointer;padding:4px;">‹</button>
+        <button onclick="navigate('main')" style="background:none;border:none;color:var(--green);font-size:28px;cursor:pointer;padding:4px;line-height:1;">‹</button>
         <div>
           <div class="settings-title">Paramètres</div>
-          <div class="settings-subtitle">Configuration du timer</div>
+          <div class="settings-subtitle">Configuration</div>
         </div>
       </div>
     </div>
-
     <div class="settings-body">
 
-      <!-- Timer Duration -->
       <div class="settings-group">
         <div class="settings-group-title">Timer</div>
         <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:16px;">
           <div class="settings-item-left">
             <div class="settings-item-name">Durée du timer</div>
-            <div class="settings-item-desc">Définir en minutes (1–60)</div>
+            <div class="settings-item-desc">Minutes avant le rappel (1–60)</div>
           </div>
           <div class="duration-control">
-            <input type="number" class="duration-input" id="duration-input"
-              min="1" max="60" value="5"
-              oninput="updateDurationFromInput(this.value)"
-              onblur="validateDuration()">
+            <input type="number" class="duration-input" id="duration-input" min="1" max="60" value="5"
+              oninput="updateDurationFromInput(this.value)" onblur="validateDuration()">
             <div class="range-wrap">
               <input type="range" id="duration-range" min="1" max="60" value="5"
                 oninput="updateDurationFromRange(this.value)">
             </div>
-            <span style="font-size:13px;color:var(--text-muted);white-space:nowrap;">min</span>
+            <span style="font-size:13px;color:var(--text-muted);">min</span>
           </div>
         </div>
       </div>
 
-      <!-- Notifications -->
       <div class="settings-group">
         <div class="settings-group-title">Alertes</div>
         <div class="settings-item">
@@ -954,7 +526,7 @@
         <div class="settings-item">
           <div class="settings-item-left">
             <div class="settings-item-name">🔊 Son</div>
-            <div class="settings-item-desc">Jouer un son d'alerte</div>
+            <div class="settings-item-desc">Son d'alerte</div>
           </div>
           <div class="toggle on" id="toggle-sound" onclick="toggleSetting('sound')"></div>
         </div>
@@ -967,56 +539,65 @@
         </div>
       </div>
 
-      <!-- Sound Test -->
       <div class="settings-group">
-        <div class="settings-group-title">Test</div>
-        <div style="padding:12px 20px 16px;">
+        <div class="settings-group-title">Tests</div>
+        <div style="padding:12px 0 16px;">
           <button class="btn-test" onclick="testSound()">🔊 Tester le son</button>
-          <button class="btn-test" style="margin-top:8px;" onclick="testVibration()">📳 Tester la vibration</button>
-          <button class="btn-test" style="margin-top:8px;" onclick="testNotification()">🔔 Tester la notification</button>
+          <button class="btn-test" style="margin-top:4px;" onclick="testVibration()">📳 Tester vibration</button>
+          <button class="btn-test" style="margin-top:4px;" onclick="testNotification()">🔔 Tester notification</button>
         </div>
       </div>
 
-      <!-- App Info -->
+      <div class="settings-group">
+        <div class="settings-group-title">Arrière-plan</div>
+        <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+          <div class="settings-item-name">ℹ️ Comment ça fonctionne ?</div>
+          <div class="settings-item-desc" style="line-height:1.6;">
+            Cette app utilise <strong style="color:var(--text);">3 méthodes combinées</strong> pour fonctionner en arrière-plan :<br><br>
+            <span style="color:var(--green);">① Alarme système (recommandé)</span><br>
+            Quand tu cliques "Répondu", une <strong style="color:var(--text);">notification programmée</strong> est créée via l'API Notifications. Elle se déclenchera même si l'app est fermée.<br><br>
+            <span style="color:var(--green);">② Timestamp sauvegardé</span><br>
+            L'heure de fin est sauvée. À la réouverture, l'app vérifie si le timer a expiré.<br><br>
+            <span style="color:var(--orange);">③ Wake Lock (si dispo)</span><br>
+            Empêche l'écran de dormir pendant le timer.<br><br>
+            <span style="color:var(--text-muted);">💡 Pour de meilleurs résultats Android : installe l'app via "Ajouter à l'écran d'accueil" dans Chrome.</span>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-group">
         <div class="settings-group-title">Application</div>
         <div class="settings-item">
           <div class="settings-item-left">
-            <div class="settings-item-name">Version</div>
-            <div class="settings-item-desc">WhatsApp Reminder v1.0</div>
-          </div>
-          <span style="color:var(--text-muted);font-size:13px;">1.0.0</span>
-        </div>
-        <div class="settings-item">
-          <div class="settings-item-left">
             <div class="settings-item-name">Sessions totales</div>
-            <div class="settings-item-desc">Nombre de timers complétés</div>
           </div>
           <span style="color:var(--text);font-weight:700;" id="settings-sessions">0</span>
         </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-name">Version</div>
+          </div>
+          <span style="color:var(--text-muted);font-size:13px;">2.0.0</span>
+        </div>
       </div>
-
     </div>
 
-    <!-- Reset Data -->
     <button class="btn-danger" onclick="resetAllData()">🗑️ Effacer toutes les données</button>
     <div style="height:24px;"></div>
   </div>
 
-</div><!-- /app -->
+</div>
 
-<!-- ═══════ ALERT OVERLAY ═══════ -->
+<!-- Alert Overlay -->
 <div id="alert-overlay">
   <div class="alert-bg-pulse"></div>
   <div class="alert-icon">📱</div>
   <div class="alert-title">Check WhatsApp !</div>
-  <div class="alert-subtitle">Tu as un message en attente de vérification</div>
-  <button class="btn-alert-dismiss" onclick="dismissAlert()">
-    ✓ J'ai vérifié
-  </button>
+  <div class="alert-subtitle">Tu as un message en attente</div>
+  <button class="btn-alert-dismiss" onclick="dismissAlert()">✓ J'ai vérifié</button>
 </div>
 
-<!-- ═══════ BOTTOM NAV ═══════ -->
+<!-- Bottom Nav -->
 <div class="bottom-nav">
   <button class="nav-item active" id="nav-main" onclick="navigate('main')">
     <span class="nav-icon">⏱️</span>
@@ -1028,161 +609,255 @@
   </button>
 </div>
 
-<!-- ═══════ TOAST ═══════ -->
 <div class="toast" id="toast"></div>
 
-<!-- ═══════ HIDDEN AUDIO ═══════ -->
-<!-- Son généré via Web Audio API (pas de fichier externe nécessaire) -->
-
 <script>
-/* ═══════════════════════════════════════════════════════
-   WHATSAPP REMINDER - APPLICATION JAVASCRIPT
-   ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   WHATSAPP REMINDER v2.0 — BACKGROUND TIMER
+   Méthodes arrière-plan :
+   1. Timestamp de fin sauvegardé en localStorage
+   2. Notification programmée via setTimeout (reste si onglet actif)
+   3. Service Worker inline (si supporté) pour vrais fonds de tâche
+   4. visibilitychange pour recalculer au retour
+   5. Wake Lock pour empêcher mise en veille
+   ═══════════════════════════════════════════════════════════════ */
 
 // ──────────────────────────────────────────────
-// ÉTAT GLOBAL
+// STATE
 // ──────────────────────────────────────────────
-const STATE = {
-  // Timer
-  timerDuration: 5 * 60,    // secondes
+const S = {
+  timerDuration: 5 * 60,
   timeRemaining: 5 * 60,
   isRunning: false,
   isPaused: false,
   isAlert: false,
-
-  // Sessions
+  endTimestamp: null,       // timestamp Unix quand le timer expire
+  pausedRemaining: null,    // secondes restantes quand mis en pause
   sessions: 0,
   totalMinutes: 0,
   history: [],
-
-  // Alert repeat
+  settings: { notif: true, vibration: true, sound: true, silent: false, duration: 5 },
+  intervalId: null,
   alertInterval: null,
   alertCount: 0,
-
-  // Settings
-  settings: {
-    notif: true,
-    vibration: true,
-    sound: true,
-    silent: false,
-    duration: 5
-  },
-
-  // Internal
-  intervalId: null,
-  startTime: null,
-  pausedAt: null,
-
-  // Audio context
-  audioCtx: null
+  audioCtx: null,
+  wakeLock: null,
+  swRegistered: false,
+  bgNotifTimeout: null,     // setTimeout pour notif arrière-plan
 };
 
 // ──────────────────────────────────────────────
-// INIT
+// SERVICE WORKER INLINE — arrière-plan réel
 // ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  loadFromStorage();
-  renderAll();
-  requestNotifPermission();
-  checkNotifBanner();
+const SW_CODE = `
+// Service Worker WhatsApp Reminder
+const CACHE = 'wa-reminder-v1';
 
-  // Restaurer timer si actif
-  restoreTimer();
+self.addEventListener('install', e => self.skipWaiting());
+self.addEventListener('activate', e => self.clients.claim());
 
-  // Touch feedback
-  document.addEventListener('touchstart', () => {}, { passive: true });
+// Recevoir messages de l'app principale
+self.addEventListener('message', e => {
+  const { type, data } = e.data || {};
+
+  if (type === 'SCHEDULE_ALARM') {
+    // Programmer une alarme via setTimeout interne au SW
+    const delay = data.delay; // ms
+    const title = data.title || 'WhatsApp Reminder';
+    const body = data.body || 'Check WhatsApp !';
+
+    if (self._alarmTimeout) clearTimeout(self._alarmTimeout);
+    if (self._repeatInterval) clearInterval(self._repeatInterval);
+
+    self._alarmTimeout = setTimeout(() => {
+      // Envoyer notification
+      self.registration.showNotification(title, {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2325D366"/><text y="0.9em" font-size="80">📱</text></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2325D366"/></svg>',
+        vibrate: [300, 100, 300, 100, 300],
+        requireInteraction: true,
+        tag: 'wa-reminder-alert',
+        renotify: true,
+        data: { type: 'TIMER_COMPLETE' }
+      });
+
+      // Répéter toutes les 15s
+      let count = 0;
+      self._repeatInterval = setInterval(() => {
+        count++;
+        if (count >= 20) { clearInterval(self._repeatInterval); return; }
+        self.registration.showNotification('⏰ WhatsApp Reminder', {
+          body: 'Rappel #' + (count + 1) + ' — Check WhatsApp !',
+          vibrate: [200, 100, 200],
+          requireInteraction: true,
+          tag: 'wa-reminder-repeat-' + count,
+          renotify: true,
+          data: { type: 'TIMER_REPEAT' }
+        });
+      }, 15000);
+
+      // Notifier l'app si ouverte
+      self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(c => c.postMessage({ type: 'TIMER_FIRED' }));
+      });
+    }, delay);
+  }
+
+  if (type === 'CANCEL_ALARM') {
+    if (self._alarmTimeout) clearTimeout(self._alarmTimeout);
+    if (self._repeatInterval) clearInterval(self._repeatInterval);
+  }
+});
+
+// Clic sur notification
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  if (self._repeatInterval) clearInterval(self._repeatInterval);
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then(clients => {
+      if (clients.length > 0) {
+        clients[0].focus();
+        clients[0].postMessage({ type: 'NOTIFICATION_CLICKED' });
+      } else {
+        self.clients.openWindow('/');
+      }
+    })
+  );
+});
+`;
+
+// Enregistrer le Service Worker via Blob URL
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) {
+    console.log('SW non supporté');
+    return;
+  }
+  try {
+    const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    const reg = await navigator.serviceWorker.register(swUrl, { scope: '/' });
+    S.swRegistered = true;
+    console.log('✅ Service Worker enregistré');
+
+    // Écouter messages du SW
+    navigator.serviceWorker.addEventListener('message', e => {
+      const { type } = e.data || {};
+      if (type === 'TIMER_FIRED') {
+        console.log('SW: timer expiré');
+        if (!S.isAlert) triggerAlert();
+      }
+      if (type === 'NOTIFICATION_CLICKED') {
+        if (S.isAlert) showAlertOverlay();
+      }
+    });
+
+  } catch(err) {
+    console.warn('SW non enregistré (Blob SW limité):', err);
+    // Fallback : pas de SW, on utilise les autres méthodes
+  }
+}
+
+// Envoyer commande au SW
+function swSend(msg) {
+  if (!S.swRegistered || !navigator.serviceWorker.controller) return false;
+  navigator.serviceWorker.controller.postMessage(msg);
+  return true;
+}
+
+// ──────────────────────────────────────────────
+// WAKE LOCK — empêcher mise en veille
+// ──────────────────────────────────────────────
+async function acquireWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    S.wakeLock = await navigator.wakeLock.request('screen');
+    S.wakeLock.addEventListener('release', () => {
+      console.log('Wake Lock libéré');
+      S.wakeLock = null;
+    });
+    console.log('✅ Wake Lock acquis');
+  } catch(e) {
+    console.warn('Wake Lock échoué:', e);
+  }
+}
+
+function releaseWakeLock() {
+  if (S.wakeLock) { S.wakeLock.release(); S.wakeLock = null; }
+}
+
+// Réacquérir wake lock si visible
+document.addEventListener('visibilitychange', async () => {
+  if (!document.hidden && S.isRunning && !S.isPaused && !S.wakeLock) {
+    await acquireWakeLock();
+  }
 });
 
 // ──────────────────────────────────────────────
-// NAVIGATION
+// PROGRAMMATION ARRIÈRE-PLAN
 // ──────────────────────────────────────────────
-function navigate(screen) {
-  vibrate(10);
+function scheduleBackgroundAlarm(delayMs) {
+  // Méthode 1 : Service Worker (le plus fiable)
+  const sentToSW = swSend({
+    type: 'SCHEDULE_ALARM',
+    data: {
+      delay: delayMs,
+      title: '📱 WhatsApp Reminder',
+      body: 'Check WhatsApp maintenant !'
+    }
+  });
 
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  // Méthode 2 : setTimeout classique (fonctionne si onglet reste actif)
+  if (S.bgNotifTimeout) clearTimeout(S.bgNotifTimeout);
+  S.bgNotifTimeout = setTimeout(() => {
+    // Si SW l'a déjà géré, on évite double déclenchement
+    if (!S.isAlert && !S.isRunning) {
+      console.log('Fallback timeout: timer expiré');
+      triggerAlert();
+    }
+  }, delayMs + 500); // +500ms buffer
 
-  document.getElementById(`screen-${screen}`).classList.add('active');
-  document.getElementById(`nav-${screen}`).classList.add('active');
+  // Méthode 3 : Notification programmée directement (si permission)
+  // (backup visuel même sans SW)
 
-  if (screen === 'settings') {
-    renderSettings();
-  }
+  console.log(`Alarme programmée dans ${Math.round(delayMs/1000)}s`, sentToSW ? '(via SW)' : '(via timeout)');
+}
+
+function cancelBackgroundAlarm() {
+  swSend({ type: 'CANCEL_ALARM' });
+  if (S.bgNotifTimeout) { clearTimeout(S.bgNotifTimeout); S.bgNotifTimeout = null; }
 }
 
 // ──────────────────────────────────────────────
-// WEB AUDIO - Génération de son
+// AUDIO
 // ──────────────────────────────────────────────
-function getAudioContext() {
-  if (!STATE.audioCtx) {
-    try {
-      STATE.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) {
-      console.warn('Audio non disponible:', e);
-      return null;
-    }
+function getAudioCtx() {
+  if (!S.audioCtx) {
+    try { S.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
   }
-  return STATE.audioCtx;
+  return S.audioCtx;
 }
 
 function resumeAudio() {
-  const ctx = getAudioContext();
-  if (ctx && ctx.state === 'suspended') {
-    ctx.resume();
-  }
+  const ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
   return ctx;
 }
 
 function playAlertSound() {
-  if (STATE.settings.silent || !STATE.settings.sound) return;
-
+  if (S.settings.silent || !S.settings.sound) return;
   const ctx = resumeAudio();
   if (!ctx) return;
-
   try {
-    // Séquence de bips d'alerte WhatsApp-like
-    const sequence = [
-      { freq: 880, start: 0,    dur: 0.12 },
-      { freq: 660, start: 0.15, dur: 0.12 },
-      { freq: 880, start: 0.30, dur: 0.12 },
-      { freq: 1100,start: 0.45, dur: 0.20 },
-    ];
-
-    sequence.forEach(note => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.start);
-
-      gain.gain.setValueAtTime(0, ctx.currentTime + note.start);
-      gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + note.start + 0.02);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + note.start + note.dur);
-
-      osc.start(ctx.currentTime + note.start);
-      osc.stop(ctx.currentTime + note.start + note.dur + 0.05);
+    [[880,0,0.12],[660,0.15,0.12],[880,0.30,0.12],[1100,0.45,0.20]].forEach(([f,s,d]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine'; o.frequency.setValueAtTime(f, ctx.currentTime + s);
+      g.gain.setValueAtTime(0, ctx.currentTime + s);
+      g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + s + 0.02);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + s + d);
+      o.start(ctx.currentTime + s); o.stop(ctx.currentTime + s + d + 0.05);
     });
-  } catch(e) {
-    console.warn('Erreur audio:', e);
-  }
-}
-
-function playClickSound() {
-  const ctx = resumeAudio();
-  if (!ctx) return;
-  try {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.setValueAtTime(600, ctx.currentTime);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.05);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.05);
   } catch(e) {}
 }
 
@@ -1190,16 +865,13 @@ function playStartSound() {
   const ctx = resumeAudio();
   if (!ctx) return;
   try {
-    [440, 550, 660].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
-      gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.12 + 0.1);
-      osc.start(ctx.currentTime + i * 0.12);
-      osc.stop(ctx.currentTime + i * 0.12 + 0.15);
+    [440,550,660].forEach((f,i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.setValueAtTime(f, ctx.currentTime + i*0.12);
+      g.gain.setValueAtTime(0.15, ctx.currentTime + i*0.12);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + i*0.12 + 0.1);
+      o.start(ctx.currentTime + i*0.12); o.stop(ctx.currentTime + i*0.12 + 0.15);
     });
   } catch(e) {}
 }
@@ -1207,11 +879,9 @@ function playStartSound() {
 // ──────────────────────────────────────────────
 // VIBRATION
 // ──────────────────────────────────────────────
-function vibrate(pattern) {
-  if (STATE.settings.silent || !STATE.settings.vibration) return;
-  if (navigator.vibrate) {
-    navigator.vibrate(pattern);
-  }
+function vibrate(p) {
+  if (S.settings.silent || !S.settings.vibration) return;
+  if (navigator.vibrate) navigator.vibrate(p);
 }
 
 // ──────────────────────────────────────────────
@@ -1220,49 +890,36 @@ function vibrate(pattern) {
 async function requestNotifPermission() {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'default') {
-    try {
-      await Notification.requestPermission();
-    } catch(e) {}
+    try { await Notification.requestPermission(); } catch(e) {}
   }
   checkNotifBanner();
 }
 
 function checkNotifBanner() {
-  const banner = document.getElementById('notif-banner');
-  if (!banner) return;
+  const b = document.getElementById('notif-banner');
+  if (!b) return;
   if (!('Notification' in window) || Notification.permission === 'granted') {
-    banner.classList.add('hidden');
+    b.classList.add('hidden');
   } else {
-    banner.classList.remove('hidden');
+    b.classList.remove('hidden');
   }
 }
 
 function sendNotification(title, body) {
-  if (!STATE.settings.notif) return;
-  if (!('Notification' in window)) return;
-  if (Notification.permission !== 'granted') return;
-
+  if (!S.settings.notif) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
-    const notif = new Notification(title, {
-      body: body,
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2325D366"/><text y=".9em" font-size="80" x="10">📱</text></svg>',
-      badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2325D366"/></svg>',
-      vibrate: [200, 100, 200],
-      tag: 'whatsapp-reminder',
-      renotify: true
+    const n = new Notification(title, {
+      body, tag: 'wa-reminder-' + Date.now(), renotify: true,
+      vibrate: [200, 100, 200], requireInteraction: true
     });
-    notif.onclick = () => {
-      window.focus();
-      notif.close();
-    };
-  } catch(e) {
-    console.warn('Notification échouée:', e);
-  }
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch(e) {}
 }
 
 function testNotification() {
   requestNotifPermission().then(() => {
-    sendNotification('WhatsApp Reminder', 'Check WhatsApp — Test notification');
+    sendNotification('📱 WhatsApp Reminder', 'Check WhatsApp — Test');
     showToast('Notification envoyée !');
   });
 }
@@ -1271,100 +928,123 @@ function testNotification() {
 // TIMER CORE
 // ──────────────────────────────────────────────
 function startTimer() {
-  if (STATE.isRunning && !STATE.isPaused) return;
+  if (S.isRunning && !S.isPaused) return;
 
   vibrate([30, 20, 30]);
   playStartSound();
 
-  STATE.isRunning = true;
-  STATE.isPaused = false;
-  STATE.isAlert = false;
-  STATE.startTime = Date.now();
+  const delay = S.timeRemaining;
+  S.endTimestamp = Date.now() + delay * 1000;
+  S.isRunning = true;
+  S.isPaused = false;
+  S.isAlert = false;
 
-  clearInterval(STATE.intervalId);
-  STATE.intervalId = setInterval(timerTick, 1000);
+  clearInterval(S.intervalId);
+  S.intervalId = setInterval(timerTick, 1000);
+
+  // Programmer alarme arrière-plan
+  scheduleBackgroundAlarm(delay * 1000);
+
+  // Wake Lock
+  acquireWakeLock();
+
+  // Mettre à jour UI bannière
+  document.getElementById('bg-banner-warn').classList.add('hidden');
+  document.getElementById('bg-banner-ok').classList.remove('hidden');
+  setTimeout(() => document.getElementById('bg-banner-ok').classList.add('hidden'), 3000);
 
   updateUI();
   saveToStorage();
 }
 
 function timerTick() {
-  if (STATE.timeRemaining <= 0) {
+  // Calculer depuis timestamp pour précision absolue
+  if (S.endTimestamp) {
+    const remaining = Math.max(0, Math.ceil((S.endTimestamp - Date.now()) / 1000));
+    S.timeRemaining = remaining;
+  } else {
+    S.timeRemaining = Math.max(0, S.timeRemaining - 1);
+  }
+
+  if (S.timeRemaining <= 0) {
     timerComplete();
     return;
   }
-  STATE.timeRemaining--;
+
   updateTimerDisplay();
   saveToStorage();
 }
 
 function timerComplete() {
-  clearInterval(STATE.intervalId);
-  STATE.isRunning = false;
-  STATE.isAlert = true;
-  STATE.timeRemaining = 0;
-  STATE.sessions++;
-  STATE.totalMinutes += STATE.settings.duration;
-
-  // Ajouter à l'historique
+  clearInterval(S.intervalId);
+  cancelBackgroundAlarm(); // le SW l'a déjà géré ou on l'annule
+  S.isRunning = false;
+  S.isAlert = true;
+  S.timeRemaining = 0;
+  S.endTimestamp = null;
+  S.sessions++;
+  S.totalMinutes += S.settings.duration;
+  releaseWakeLock();
   addToHistory();
-
-  // Déclencher alerte
   triggerAlert();
-
   saveToStorage();
   updateUI();
 }
 
 function triggerAlert() {
-  // Afficher popup
   showAlertOverlay();
-
-  // Son + vibration
   playAlertSound();
   vibrate([300, 100, 300, 100, 300]);
-
-  // Notification
-  sendNotification('WhatsApp Reminder 📱', 'Check WhatsApp maintenant !');
-
-  // Répétition toutes les 15s
-  STATE.alertCount = 0;
-  clearInterval(STATE.alertInterval);
-  STATE.alertInterval = setInterval(() => {
-    STATE.alertCount++;
+  sendNotification('📱 WhatsApp Reminder', 'Check WhatsApp maintenant !');
+  S.alertCount = 0;
+  clearInterval(S.alertInterval);
+  S.alertInterval = setInterval(() => {
+    S.alertCount++;
     playAlertSound();
     vibrate([200, 100, 200]);
-    sendNotification('WhatsApp Reminder 📱', `Rappel #${STATE.alertCount+1} — Check WhatsApp !`);
+    sendNotification('⏰ WhatsApp Reminder', `Rappel #${S.alertCount+1} — Check WhatsApp !`);
   }, 15000);
 }
 
 function pauseTimer() {
-  if (!STATE.isRunning || STATE.isPaused) return;
-  clearInterval(STATE.intervalId);
-  STATE.isPaused = true;
-  STATE.pausedAt = Date.now();
+  if (!S.isRunning || S.isPaused) return;
+  clearInterval(S.intervalId);
+  cancelBackgroundAlarm();
+  S.isPaused = true;
+  S.pausedRemaining = S.timeRemaining;
+  S.endTimestamp = null;
+  releaseWakeLock();
   vibrate(20);
+  document.getElementById('bg-banner-ok').classList.add('hidden');
   updateUI();
   saveToStorage();
 }
 
 function resumeTimer() {
-  if (!STATE.isRunning || !STATE.isPaused) return;
-  STATE.isPaused = false;
-  STATE.intervalId = setInterval(timerTick, 1000);
+  if (!S.isRunning || !S.isPaused) return;
+  S.isPaused = false;
+  S.endTimestamp = Date.now() + S.timeRemaining * 1000;
+  S.intervalId = setInterval(timerTick, 1000);
+  scheduleBackgroundAlarm(S.timeRemaining * 1000);
+  acquireWakeLock();
   vibrate([15, 10, 15]);
   updateUI();
   saveToStorage();
 }
 
 function resetTimer() {
-  clearInterval(STATE.intervalId);
-  clearInterval(STATE.alertInterval);
-  STATE.isRunning = false;
-  STATE.isPaused = false;
-  STATE.isAlert = false;
-  STATE.timeRemaining = STATE.timerDuration;
+  clearInterval(S.intervalId);
+  clearInterval(S.alertInterval);
+  cancelBackgroundAlarm();
+  releaseWakeLock();
+  S.isRunning = false;
+  S.isPaused = false;
+  S.isAlert = false;
+  S.endTimestamp = null;
+  S.timeRemaining = S.timerDuration;
   hideAlertOverlay();
+  document.getElementById('bg-banner-ok').classList.add('hidden');
+  document.getElementById('bg-banner-warn').classList.add('hidden');
   vibrate(30);
   updateUI();
   saveToStorage();
@@ -1372,31 +1052,18 @@ function resetTimer() {
 }
 
 function togglePause() {
-  if (STATE.isPaused) {
-    resumeTimer();
-  } else {
-    pauseTimer();
-  }
+  if (S.isPaused) resumeTimer(); else pauseTimer();
 }
 
-// ──────────────────────────────────────────────
-// MAIN BUTTON HANDLER
-// ──────────────────────────────────────────────
 function handleMainBtn() {
-  resumeAudio(); // Unlock audio on user interaction
-
-  if (STATE.isAlert) {
-    // Si en mode alerte -> J'ai vérifié
+  resumeAudio();
+  if (S.isAlert) {
     dismissAlert();
-  } else if (STATE.isRunning && !STATE.isPaused) {
-    // Timer actif -> annuler
+  } else if (S.isRunning && !S.isPaused) {
     resetTimer();
   } else {
-    // Démarrer
-    STATE.timeRemaining = STATE.timerDuration;
+    S.timeRemaining = S.timerDuration;
     startTimer();
-    playClickSound();
-    vibrate([20, 10, 20]);
   }
 }
 
@@ -1406,16 +1073,15 @@ function handleMainBtn() {
 function showAlertOverlay() {
   document.getElementById('alert-overlay').classList.add('show');
 }
-
 function hideAlertOverlay() {
   document.getElementById('alert-overlay').classList.remove('show');
 }
-
 function dismissAlert() {
-  clearInterval(STATE.alertInterval);
-  STATE.isAlert = false;
-  STATE.isRunning = false;
-  STATE.timeRemaining = STATE.timerDuration;
+  clearInterval(S.alertInterval);
+  S.isAlert = false;
+  S.isRunning = false;
+  S.timeRemaining = S.timerDuration;
+  S.endTimestamp = null;
   hideAlertOverlay();
   vibrate([30, 20, 60]);
   updateUI();
@@ -1424,15 +1090,8 @@ function dismissAlert() {
 }
 
 // ──────────────────────────────────────────────
-// UI UPDATE
+// UI
 // ──────────────────────────────────────────────
-function renderAll() {
-  updateTimerDisplay();
-  updateUI();
-  renderHistory();
-  renderStats();
-}
-
 function updateUI() {
   updateStatusBadge();
   updateMainBtn();
@@ -1444,172 +1103,112 @@ function updateUI() {
 function updateStatusBadge() {
   const badge = document.getElementById('status-badge');
   const text = document.getElementById('status-text');
-
   badge.className = 'status-badge';
-
-  if (STATE.isAlert) {
-    badge.classList.add('alert');
-    text.textContent = '🚨 Rappel en cours';
-  } else if (STATE.isPaused) {
-    badge.classList.add('paused');
-    text.textContent = '⏸ Timer en pause';
-  } else if (STATE.isRunning) {
-    badge.classList.add('active');
-    text.textContent = '⏱ Timer actif';
-  } else {
-    badge.classList.add('waiting');
-    text.textContent = '💤 En attente';
-  }
+  if (S.isAlert) { badge.classList.add('alert'); text.textContent = '🚨 Rappel en cours'; }
+  else if (S.isPaused) { badge.classList.add('paused'); text.textContent = '⏸ En pause'; }
+  else if (S.isRunning) { badge.classList.add('active'); text.textContent = '⏱ Timer actif'; }
+  else { badge.classList.add('waiting'); text.textContent = '💤 En attente'; }
 }
 
 function updateMainBtn() {
   const btn = document.getElementById('btn-main');
-  const btnText = document.getElementById('btn-main-text');
-  const btnIcon = btn.querySelector('.btn-icon');
-
+  const txt = document.getElementById('btn-main-text');
+  const icon = btn.querySelector('.btn-icon');
   btn.className = 'btn-main';
-
-  if (STATE.isAlert) {
-    btn.classList.add('red');
-    btnIcon.textContent = '✓';
-    btnText.textContent = "J'AI VÉRIFIÉ";
-  } else if (STATE.isRunning && !STATE.isPaused) {
-    btn.classList.add('green', 'glow-pulse');
-    btnIcon.textContent = '⏹';
-    btnText.textContent = 'ANNULER';
-  } else {
-    btn.classList.add('green');
-    btnIcon.textContent = '✅';
-    btnText.textContent = 'RÉPONDU';
-  }
+  if (S.isAlert) { btn.classList.add('red'); icon.textContent = '✓'; txt.textContent = "J'AI VÉRIFIÉ"; }
+  else if (S.isRunning && !S.isPaused) { btn.classList.add('green', 'glow-pulse'); icon.textContent = '⏹'; txt.textContent = 'ANNULER'; }
+  else { btn.classList.add('green'); icon.textContent = '✅'; txt.textContent = 'RÉPONDU'; }
 }
 
 function updateControls() {
-  const controls = document.getElementById('controls');
-  const pauseIcon = document.getElementById('pause-icon');
-  const pauseText = document.getElementById('pause-text');
-
-  if (STATE.isRunning && !STATE.isAlert) {
-    controls.classList.remove('hidden');
-    if (STATE.isPaused) {
-      pauseIcon.textContent = '▶';
-      pauseText.textContent = 'Reprendre';
-    } else {
-      pauseIcon.textContent = '⏸';
-      pauseText.textContent = 'Pause';
-    }
+  const ctrl = document.getElementById('controls');
+  const pi = document.getElementById('pause-icon');
+  const pt = document.getElementById('pause-text');
+  if (S.isRunning && !S.isAlert) {
+    ctrl.classList.remove('hidden');
+    if (S.isPaused) { pi.textContent = '▶'; pt.textContent = 'Reprendre'; }
+    else { pi.textContent = '⏸'; pt.textContent = 'Pause'; }
   } else {
-    controls.classList.add('hidden');
+    ctrl.classList.add('hidden');
   }
 }
 
 function updateTimerDisplay() {
-  const display = document.getElementById('timer-display');
+  const disp = document.getElementById('timer-display');
   const label = document.getElementById('timer-label');
   const ring = document.getElementById('ring-progress');
-  const glowRing = document.getElementById('glow-ring');
-  const nextReminder = document.getElementById('next-reminder');
-  const nextReminderTime = document.getElementById('next-reminder-time');
+  const glow = document.getElementById('glow-ring');
+  const nr = document.getElementById('next-reminder');
+  const nrt = document.getElementById('next-reminder-time');
 
-  // Format time
-  const mins = Math.floor(STATE.timeRemaining / 60);
-  const secs = STATE.timeRemaining % 60;
-  const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-  display.textContent = timeStr;
+  const mins = Math.floor(S.timeRemaining / 60);
+  const secs = S.timeRemaining % 60;
+  disp.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 
-  // Ring progress
-  const total = STATE.timerDuration;
-  const progress = STATE.timeRemaining / total;
-  const circumference = 691; // 2π * 110
-  const offset = circumference * (1 - progress);
+  const progress = S.timerDuration > 0 ? S.timeRemaining / S.timerDuration : 0;
+  const offset = 691 * (1 - progress);
   ring.style.strokeDashoffset = offset;
 
-  // Color based on time
-  display.className = 'timer-display';
-  glowRing.className = 'glow-ring';
+  disp.className = 'timer-display';
+  glow.className = 'glow-ring';
 
-  if (STATE.isAlert) {
-    display.classList.add('red');
-    ring.style.stroke = 'var(--red)';
-    ring.style.filter = 'drop-shadow(0 0 8px var(--red-glow))';
-    label.textContent = 'CHECK !';
-    glowRing.classList.add('alert');
-    nextReminder.classList.add('hidden');
-  } else if (!STATE.isRunning) {
-    display.classList.add('white');
-    ring.style.stroke = 'var(--surface3)';
-    ring.style.filter = 'none';
-    label.textContent = 'PRÊT';
-    nextReminder.classList.add('hidden');
-  } else if (STATE.isPaused) {
-    display.classList.add('orange');
-    ring.style.stroke = 'var(--orange)';
-    ring.style.filter = 'drop-shadow(0 0 8px var(--orange-glow))';
-    label.textContent = 'PAUSE';
-    glowRing.className = 'glow-ring';
-    nextReminder.classList.add('hidden');
+  if (S.isAlert) {
+    disp.classList.add('red'); ring.style.stroke = 'var(--red)'; ring.style.filter = 'drop-shadow(0 0 8px var(--red-glow))';
+    label.textContent = 'CHECK !'; glow.classList.add('alert'); nr.classList.add('hidden');
+  } else if (!S.isRunning) {
+    disp.classList.add('white'); ring.style.stroke = 'var(--surface3)'; ring.style.filter = 'none';
+    label.textContent = 'PRÊT'; nr.classList.add('hidden');
+  } else if (S.isPaused) {
+    disp.classList.add('orange'); ring.style.stroke = 'var(--orange)'; ring.style.filter = 'drop-shadow(0 0 8px var(--orange-glow))';
+    label.textContent = 'PAUSE'; nr.classList.add('hidden');
   } else if (progress <= 0.25) {
-    display.classList.add('red');
-    ring.style.stroke = 'var(--red)';
-    ring.style.filter = 'drop-shadow(0 0 8px var(--red-glow))';
-    label.textContent = 'BIENTÔT !';
-    glowRing.classList.add('active');
-    showNextReminder(nextReminder, nextReminderTime);
+    disp.classList.add('red'); ring.style.stroke = 'var(--red)'; ring.style.filter = 'drop-shadow(0 0 8px var(--red-glow))';
+    label.textContent = 'BIENTÔT !'; glow.classList.add('active'); showNextReminder(nr, nrt);
   } else if (progress <= 0.5) {
-    display.classList.add('orange');
-    ring.style.stroke = 'var(--orange)';
-    ring.style.filter = 'drop-shadow(0 0 8px var(--orange-glow))';
-    label.textContent = 'ACTIF';
-    glowRing.classList.add('active');
-    showNextReminder(nextReminder, nextReminderTime);
+    disp.classList.add('orange'); ring.style.stroke = 'var(--orange)'; ring.style.filter = 'drop-shadow(0 0 8px var(--orange-glow))';
+    label.textContent = 'ACTIF'; glow.classList.add('active'); showNextReminder(nr, nrt);
   } else {
-    display.classList.add('green');
-    ring.style.stroke = 'var(--green)';
-    ring.style.filter = 'drop-shadow(0 0 8px var(--green-glow))';
-    label.textContent = 'ACTIF';
-    glowRing.classList.add('active');
-    showNextReminder(nextReminder, nextReminderTime);
+    disp.classList.add('green'); ring.style.stroke = 'var(--green)'; ring.style.filter = 'drop-shadow(0 0 8px var(--green-glow))';
+    label.textContent = 'ACTIF'; glow.classList.add('active'); showNextReminder(nr, nrt);
   }
 }
 
 function showNextReminder(el, timeEl) {
   el.classList.remove('hidden');
-  const now = new Date();
-  const future = new Date(now.getTime() + STATE.timeRemaining * 1000);
-  timeEl.textContent = `${String(future.getHours()).padStart(2,'0')}:${String(future.getMinutes()).padStart(2,'0')}`;
+  if (S.endTimestamp) {
+    const d = new Date(S.endTimestamp);
+    timeEl.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  } else {
+    const d = new Date(Date.now() + S.timeRemaining * 1000);
+    timeEl.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
 }
 
 function renderStats() {
-  document.getElementById('stat-sessions').textContent = STATE.sessions;
-  const h = Math.floor(STATE.totalMinutes / 60);
-  const m = STATE.totalMinutes % 60;
+  document.getElementById('stat-sessions').textContent = S.sessions;
+  const h = Math.floor(S.totalMinutes / 60);
+  const m = S.totalMinutes % 60;
   document.getElementById('stat-total').textContent = h > 0 ? `${h}h${m}m` : `${m}m`;
   const ss = document.getElementById('settings-sessions');
-  if (ss) ss.textContent = STATE.sessions;
+  if (ss) ss.textContent = S.sessions;
 }
 
 function addToHistory() {
   const now = new Date();
-  const entry = {
+  S.history.unshift({
     time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
     date: now.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' }),
-    duration: STATE.settings.duration
-  };
-  STATE.history.unshift(entry);
-  if (STATE.history.length > 10) STATE.history.pop();
+    duration: S.settings.duration
+  });
+  if (S.history.length > 10) S.history.pop();
   renderHistory();
 }
 
 function renderHistory() {
   const list = document.getElementById('history-list');
   if (!list) return;
-
-  if (STATE.history.length === 0) {
-    list.innerHTML = '<div class="no-history">Aucune session</div>';
-    return;
-  }
-
-  list.innerHTML = STATE.history.map(h => `
+  if (S.history.length === 0) { list.innerHTML = '<div class="no-history">Aucune session</div>'; return; }
+  list.innerHTML = S.history.map(h => `
     <div class="history-item">
       <div>
         <div style="font-weight:600;">${h.date} à ${h.time}</div>
@@ -1621,61 +1220,192 @@ function renderHistory() {
 }
 
 // ──────────────────────────────────────────────
-// SETTINGS
+// STORAGE
 // ──────────────────────────────────────────────
-function renderSettings() {
-  const settings = STATE.settings;
-  setToggle('notif', settings.notif);
-  setToggle('vibration', settings.vibration);
-  setToggle('sound', settings.sound);
-  setToggle('silent', settings.silent);
-
-  const di = document.getElementById('duration-input');
-  const dr = document.getElementById('duration-range');
-  if (di) di.value = settings.duration;
-  if (dr) dr.value = settings.duration;
-
-  renderStats();
+function saveToStorage() {
+  try {
+    localStorage.setItem('wa_reminder_v2', JSON.stringify({
+      sessions: S.sessions,
+      totalMinutes: S.totalMinutes,
+      history: S.history,
+      settings: S.settings,
+      timer: {
+        isRunning: S.isRunning,
+        isPaused: S.isPaused,
+        isAlert: S.isAlert,
+        endTimestamp: S.endTimestamp,
+        pausedRemaining: S.pausedRemaining,
+        savedAt: Date.now()
+      }
+    }));
+  } catch(e) {}
 }
 
-function setToggle(id, val) {
-  const el = document.getElementById(`toggle-${id}`);
-  if (!el) return;
-  el.className = 'toggle' + (val ? ' on' : '');
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('wa_reminder_v2');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.sessions) S.sessions = d.sessions;
+    if (d.totalMinutes) S.totalMinutes = d.totalMinutes;
+    if (d.history) S.history = d.history;
+    if (d.settings) {
+      S.settings = { ...S.settings, ...d.settings };
+      S.timerDuration = S.settings.duration * 60;
+      S.timeRemaining = S.timerDuration;
+    }
+    if (d.timer) S._savedTimer = d.timer;
+  } catch(e) {}
+}
+
+// ──────────────────────────────────────────────
+// RESTAURATION TIMER — logique clé arrière-plan
+// ──────────────────────────────────────────────
+function restoreTimer() {
+  const t = S._savedTimer;
+  if (!t) return;
+
+  const now = Date.now();
+
+  if (t.isAlert) {
+    // Alerte active avant reload
+    S.isAlert = true;
+    S.timeRemaining = 0;
+    S.endTimestamp = null;
+    triggerAlert();
+    updateUI();
+    return;
+  }
+
+  if (t.endTimestamp && t.isRunning && !t.isPaused) {
+    const remaining = Math.ceil((t.endTimestamp - now) / 1000);
+
+    if (remaining <= 0) {
+      // Timer expiré pendant l'absence !
+      console.log('Timer expiré en arrière-plan !');
+      S.sessions++;
+      S.totalMinutes += S.settings.duration;
+      S.endTimestamp = null;
+      addToHistory();
+      triggerAlert();
+      updateUI();
+      saveToStorage();
+      showToast('⚠️ Timer expiré pendant ton absence !');
+    } else {
+      // Timer toujours en cours — reprendre
+      S.isRunning = true;
+      S.isPaused = false;
+      S.timeRemaining = remaining;
+      S.endTimestamp = t.endTimestamp;
+      S.intervalId = setInterval(timerTick, 1000);
+      // Reprogrammer l'alarme pour le temps restant
+      scheduleBackgroundAlarm(remaining * 1000);
+      acquireWakeLock();
+      updateUI();
+      showToast(`Timer repris — ${Math.floor(remaining/60)}m${remaining%60}s restants`);
+    }
+    return;
+  }
+
+  if (t.isPaused && t.pausedRemaining) {
+    // Timer en pause
+    S.isRunning = true;
+    S.isPaused = true;
+    S.timeRemaining = t.pausedRemaining;
+    S.endTimestamp = null;
+    updateUI();
+    showToast('Timer en pause restauré');
+    return;
+  }
+}
+
+// ──────────────────────────────────────────────
+// VISIBILITY CHANGE — recalcul au retour
+// ──────────────────────────────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // App en arrière-plan : sauvegarder
+    saveToStorage();
+  } else {
+    // App revenue au premier plan
+    console.log('App revenue au premier plan');
+
+    if (S.isRunning && !S.isPaused && S.endTimestamp) {
+      const remaining = Math.ceil((S.endTimestamp - Date.now()) / 1000);
+
+      if (remaining <= 0) {
+        // Expiré pendant l'absence (setTimeout n'a pas tourné)
+        if (!S.isAlert) {
+          clearInterval(S.intervalId);
+          S.timeRemaining = 0;
+          S.isRunning = false;
+          timerComplete();
+        }
+      } else {
+        // Mettre à jour le temps restant précisément
+        S.timeRemaining = remaining;
+        updateTimerDisplay();
+      }
+    }
+  }
+});
+
+// ──────────────────────────────────────────────
+// PAGE HIDE — sauvegarde finale
+// ──────────────────────────────────────────────
+window.addEventListener('pagehide', () => { saveToStorage(); });
+window.addEventListener('beforeunload', () => { saveToStorage(); });
+
+// ──────────────────────────────────────────────
+// SETTINGS
+// ──────────────────────────────────────────────
+function navigate(screen) {
+  vibrate(10);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`screen-${screen}`).classList.add('active');
+  document.getElementById(`nav-${screen}`).classList.add('active');
+  if (screen === 'settings') renderSettings();
+}
+
+function renderSettings() {
+  ['notif','vibration','sound','silent'].forEach(k => {
+    const el = document.getElementById(`toggle-${k}`);
+    if (el) el.className = 'toggle' + (S.settings[k] ? ' on' : '');
+  });
+  const di = document.getElementById('duration-input');
+  const dr = document.getElementById('duration-range');
+  if (di) di.value = S.settings.duration;
+  if (dr) dr.value = S.settings.duration;
+  renderStats();
 }
 
 function toggleSetting(key) {
   vibrate(15);
-  STATE.settings[key] = !STATE.settings[key];
-
-  // Mode silencieux -> désactive tout
-  if (key === 'silent' && STATE.settings.silent) {
-    STATE.settings.sound = false;
-    STATE.settings.vibration = false;
-    setToggle('sound', false);
-    setToggle('vibration', false);
-  } else if (key === 'silent' && !STATE.settings.silent) {
-    STATE.settings.sound = true;
-    STATE.settings.vibration = true;
-    setToggle('sound', true);
-    setToggle('vibration', true);
+  S.settings[key] = !S.settings[key];
+  if (key === 'silent') {
+    if (S.settings.silent) {
+      S.settings.sound = false; S.settings.vibration = false;
+      document.getElementById('toggle-sound').className = 'toggle';
+      document.getElementById('toggle-vibration').className = 'toggle';
+    } else {
+      S.settings.sound = true; S.settings.vibration = true;
+      document.getElementById('toggle-sound').className = 'toggle on';
+      document.getElementById('toggle-vibration').className = 'toggle on';
+    }
   }
-
-  setToggle(key, STATE.settings[key]);
+  document.getElementById(`toggle-${key}`).className = 'toggle' + (S.settings[key] ? ' on' : '');
   saveToStorage();
-  showToast(STATE.settings[key] ? `✓ Activé` : `✗ Désactivé`);
+  showToast(S.settings[key] ? '✓ Activé' : '✗ Désactivé');
 }
 
 function updateDurationFromRange(val) {
   val = parseInt(val);
-  STATE.settings.duration = val;
-  STATE.timerDuration = val * 60;
+  S.settings.duration = val;
+  S.timerDuration = val * 60;
   const di = document.getElementById('duration-input');
   if (di) di.value = val;
-  if (!STATE.isRunning) {
-    STATE.timeRemaining = STATE.timerDuration;
-    updateTimerDisplay();
-  }
+  if (!S.isRunning) { S.timeRemaining = S.timerDuration; updateTimerDisplay(); }
   saveToStorage();
 }
 
@@ -1683,219 +1413,83 @@ function updateDurationFromInput(val) {
   val = parseInt(val);
   if (isNaN(val)) return;
   val = Math.max(1, Math.min(60, val));
-  STATE.settings.duration = val;
-  STATE.timerDuration = val * 60;
+  S.settings.duration = val;
+  S.timerDuration = val * 60;
   const dr = document.getElementById('duration-range');
   if (dr) dr.value = val;
-  if (!STATE.isRunning) {
-    STATE.timeRemaining = STATE.timerDuration;
-    updateTimerDisplay();
-  }
+  if (!S.isRunning) { S.timeRemaining = S.timerDuration; updateTimerDisplay(); }
   saveToStorage();
 }
 
 function validateDuration() {
   const di = document.getElementById('duration-input');
   if (!di) return;
-  let val = parseInt(di.value);
-  if (isNaN(val) || val < 1) val = 1;
-  if (val > 60) val = 60;
-  di.value = val;
-  updateDurationFromInput(val);
+  let v = parseInt(di.value);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 60) v = 60;
+  di.value = v;
+  updateDurationFromInput(v);
 }
 
-function testSound() {
-  resumeAudio();
-  playAlertSound();
-  showToast('🔊 Test du son');
-}
+function testSound() { resumeAudio(); playAlertSound(); showToast('🔊 Test son'); }
+function testVibration() { vibrate([200,100,200,100,400]); showToast('📳 Test vibration'); }
 
-function testVibration() {
-  vibrate([200, 100, 200, 100, 400]);
-  showToast('📳 Test vibration');
+function showBgHelp() {
+  showToast('Timer actif en arrière-plan via notification système');
 }
 
 function resetAllData() {
   if (!confirm('Effacer toutes les données ?')) return;
-  clearInterval(STATE.intervalId);
-  clearInterval(STATE.alertInterval);
-  STATE.sessions = 0;
-  STATE.totalMinutes = 0;
-  STATE.history = [];
-  STATE.isRunning = false;
-  STATE.isPaused = false;
-  STATE.isAlert = false;
-  STATE.timeRemaining = STATE.timerDuration;
-  hideAlertOverlay();
-  localStorage.clear();
-  renderAll();
-  showToast('✓ Données effacées');
-}
-
-// ──────────────────────────────────────────────
-// LOCAL STORAGE
-// ──────────────────────────────────────────────
-function saveToStorage() {
-  try {
-    const data = {
-      sessions: STATE.sessions,
-      totalMinutes: STATE.totalMinutes,
-      history: STATE.history,
-      settings: STATE.settings,
-      // Sauvegarder état timer pour restauration
-      timerState: {
-        isRunning: STATE.isRunning,
-        isPaused: STATE.isPaused,
-        isAlert: STATE.isAlert,
-        timeRemaining: STATE.timeRemaining,
-        savedAt: Date.now()
-      }
-    };
-    localStorage.setItem('wa_reminder', JSON.stringify(data));
-  } catch(e) {
-    console.warn('Erreur localStorage:', e);
-  }
-}
-
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem('wa_reminder');
-    if (!raw) return;
-    const data = JSON.parse(raw);
-
-    if (data.sessions) STATE.sessions = data.sessions;
-    if (data.totalMinutes) STATE.totalMinutes = data.totalMinutes;
-    if (data.history) STATE.history = data.history;
-    if (data.settings) {
-      STATE.settings = { ...STATE.settings, ...data.settings };
-      STATE.timerDuration = STATE.settings.duration * 60;
-      STATE.timeRemaining = STATE.timerDuration;
-    }
-
-    // Restaurer état timer
-    if (data.timerState) {
-      STATE._savedTimerState = data.timerState;
-    }
-  } catch(e) {
-    console.warn('Erreur lecture localStorage:', e);
-  }
-}
-
-function restoreTimer() {
-  const ts = STATE._savedTimerState;
-  if (!ts) return;
-
-  const elapsed = Math.floor((Date.now() - ts.savedAt) / 1000);
-
-  if (ts.isAlert) {
-    // Si alerte active au reload -> rappeler
-    STATE.isAlert = true;
-    STATE.timeRemaining = 0;
-    triggerAlert();
-    updateUI();
-  } else if (ts.isRunning && !ts.isPaused) {
-    // Timer était actif -> ajuster temps restant
-    const remaining = ts.timeRemaining - elapsed;
-    if (remaining <= 0) {
-      // Expiré pendant l'absence
-      STATE.timeRemaining = 0;
-      STATE.sessions++;
-      STATE.totalMinutes += STATE.settings.duration;
-      addToHistory();
-      triggerAlert();
-      updateUI();
-    } else {
-      // Reprendre
-      STATE.timeRemaining = remaining;
-      STATE.isRunning = true;
-      STATE.isPaused = false;
-      STATE.intervalId = setInterval(timerTick, 1000);
-      showToast(`Timer repris — ${formatTime(remaining)} restants`);
-      updateUI();
-    }
-  } else if (ts.isPaused) {
-    // Timer en pause -> restaurer
-    STATE.timeRemaining = ts.timeRemaining;
-    STATE.isRunning = true;
-    STATE.isPaused = true;
-    updateUI();
-    showToast('Timer en pause restauré');
-  }
-}
-
-function formatTime(secs) {
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `${m}m${String(s).padStart(2,'0')}s`;
+  clearInterval(S.intervalId); clearInterval(S.alertInterval);
+  cancelBackgroundAlarm(); releaseWakeLock();
+  S.sessions = 0; S.totalMinutes = 0; S.history = [];
+  S.isRunning = false; S.isPaused = false; S.isAlert = false;
+  S.timeRemaining = S.timerDuration; S.endTimestamp = null;
+  hideAlertOverlay(); localStorage.clear();
+  renderHistory(); updateUI(); showToast('✓ Données effacées');
 }
 
 // ──────────────────────────────────────────────
 // TOAST
 // ──────────────────────────────────────────────
-let toastTimeout;
+let toastT;
 function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 2500);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
 // ──────────────────────────────────────────────
-// VISIBILITY CHANGE — Gérer arrière-plan
+// INIT
 // ──────────────────────────────────────────────
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    // App revenue au premier plan
-    if (STATE.isRunning && !STATE.isPaused) {
-      // Vérifier si le timer a expiré pendant l'absence
-      const raw = localStorage.getItem('wa_reminder');
-      if (raw) {
-        try {
-          const data = JSON.parse(raw);
-          if (data.timerState && data.timerState.isRunning) {
-            const elapsed = Math.floor((Date.now() - data.timerState.savedAt) / 1000);
-            const newRemaining = data.timerState.timeRemaining - elapsed;
-            if (newRemaining <= 0 && !STATE.isAlert) {
-              clearInterval(STATE.intervalId);
-              STATE.timeRemaining = 0;
-              timerComplete();
-            }
-          }
-        } catch(e) {}
-      }
-    }
-  } else {
-    // App mise en arrière-plan -> sauvegarder
-    saveToStorage();
-  }
+document.addEventListener('DOMContentLoaded', async () => {
+  loadFromStorage();
+
+  // Demander permissions
+  await requestNotifPermission();
+  checkNotifBanner();
+
+  // Enregistrer SW pour arrière-plan
+  await registerSW();
+
+  // Restaurer état timer
+  restoreTimer();
+
+  // Render initial
+  renderHistory();
+  renderStats();
+  updateTimerDisplay();
+  updateUI();
+
+  // Touch double-tap prevention
+  let lt = 0;
+  document.addEventListener('touchend', e => {
+    const n = Date.now();
+    if (n - lt < 300) e.preventDefault();
+    lt = n;
+  }, { passive: false });
 });
-
-// ──────────────────────────────────────────────
-// WAKE LOCK (si disponible)
-// ──────────────────────────────────────────────
-async function requestWakeLock() {
-  if ('wakeLock' in navigator && STATE.isRunning) {
-    try {
-      STATE.wakeLock = await navigator.wakeLock.request('screen');
-    } catch(e) {}
-  }
-}
-
-// ──────────────────────────────────────────────
-// PREVENT DOUBLE TAP ZOOM sur iOS
-// ──────────────────────────────────────────────
-let lastTouch = 0;
-document.addEventListener('touchend', (e) => {
-  const now = Date.now();
-  if (now - lastTouch < 300) {
-    e.preventDefault();
-  }
-  lastTouch = now;
-}, { passive: false });
-
 </script>
 </body>
 </html>
